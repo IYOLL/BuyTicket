@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Ticket System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .screen {
+            display: none;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+
+        /* Login Screen */
+        .login-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .login-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            font-size: 48px;
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 60px;
+        }
+
+        .auth-buttons {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auth-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn {
+            background: white;
+            color: #764ba2;
+        }
+
+        .register-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        /* Home Screen */
+        .home-screen {
+            background: #f8f9fa;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .events-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .event-image {
+            height: 120px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .event-info {
+            padding: 12px;
+        }
+
+        .event-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .event-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Event Detail Screen */
+        .event-detail-screen {
+            background: #000;
+            color: white;
+        }
+
+        .event-hero {
+            height: 300px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .event-details {
+            padding: 20px;
+        }
+
+        .event-details h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .buy-ticket-btn {
+            width: 100%;
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        /* Seat Selection Screen */
+        .seat-screen {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .seat-map {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stadium-view {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: conic-gradient(#3498db, #e74c3c, #f39c12, #2ecc71, #9b59b6, #3498db);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .ticket-info {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .price-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        /* QR Code Screen */
+        .qr-screen {
+            background: #f8f9fa;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 16px;
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .qr-pattern {
+            width: 160px;
+            height: 160px;
+            background-image: 
+                repeating-linear-gradient(0deg, #000, #000 4px, transparent 4px, transparent 8px),
+                repeating-linear-gradient(90deg, #000, #000 4px, transparent 4px, transparent 8px);
+            background-size: 8px 8px;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            border: 4px solid #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2ecc71;
+            font-size: 48px;
+            margin-bottom: 30px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .success-subtitle {
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-item.active {
+            color: #ff4757;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+        }
+
+        /* Admin Screens */
+        .admin-screen {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .chart-placeholder {
+            height: 100px;
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            border-radius: 12px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .orders-list {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error-screen {
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            border: 4px solid #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e74c3c;
+            font-size: 48px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>●●● Jakarta</span>
+            <span>100%🔋</span>
+        </div>
+
+        <!-- Login Screen -->
+        <div class="screen active" id="login">
+            <div class="login-screen">
+                <div class="login-icon">🎵</div>
+                <h1 class="login-title">LOG IN</h1>
+                <div class="auth-buttons">
+                    <button class="auth-btn login-btn" onclick="showScreen('home')">Login</button>
+                    <button class="auth-btn register-btn" onclick="showRegister()">Register</button>
+                </div>
+            </div>
+        </div>
+
+<!-- Register Screen -->
+<div class="screen" id="register">
+    <div class="login-screen">
+        <div class="login-icon">📝</div>
+        <h1 class="login-title">Register</h1>
+        <div class="auth-buttons">
+            <input type="text" placeholder="Username" class="auth-btn" style="background: white; color: #764ba2;">
+            <input type="password" placeholder="Password" class="auth-btn" style="background: white; color: #764ba2;">
+            <button class="auth-btn register-btn" onclick="registerUser()">Submit</button>
+            <button class="auth-btn login-btn" onclick="showScreen('login')">Back to Login</button>
+        </div>
+    </div>
+</div>
+
+        <!-- Home Screen -->
+        <div class="screen" id="home">
+            <div class="home-screen">
+                <div class="header">
+                    <h1>Upcoming Events</h1>
+                    <p>Discover amazing concerts and events</p>
+                </div>
+                <div class="events-grid">
+                    <div class="event-card" onclick="showEventDetail('Rock Festival')">
+                        <div class="event-image">🎸</div>
+                        <div class="event-info">
+                            <div class="event-title">Rock Festival</div>
+                            <div class="event-date">Dec 25, 2024</div>
+                        </div>
+                    </div>
+                    <div class="event-card" onclick="showEventDetail('Jazz Night')">
+                        <div class="event-image">🎺</div>
+                        <div class="event-info">
+                            <div class="event-title">Jazz Night</div>
+                            <div class="event-date">Dec 28, 2024</div>
+                        </div>
+                    </div>
+                    <div class="event-card" onclick="showEventDetail('Pop Concert')">
+                        <div class="event-image">🎤</div>
+                        <div class="event-info">
+                            <div class="event-title">Pop Concert</div>
+                            <div class="event-date">Jan 5, 2025</div>
+                        </div>
+                    </div>
+                    <div class="event-card" onclick="showEventDetail('Classical Evening')">
+                        <div class="event-image">🎼</div>
+                        <div class="event-info">
+                            <div class="event-title">Classical Evening</div>
+                            <div class="event-date">Jan 10, 2025</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="showScreen('home')">
+                    <div class="nav-icon">🏠</div>
+                    <div class="nav-label">Home</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('search')">
+                    <div class="nav-icon">🔍</div>
+                    <div class="nav-label">Search</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('tickets')">
+                    <div class="nav-icon">🎫</div>
+                    <div class="nav-label">Tickets</div>
+                </div>
+                <div class="nav-item" onclick="showScreen('profile')">
+                    <div class="nav-icon">👤</div>
+                    <div class="nav-label">Profile</div>
+                </div>
+            </div>
+        </div>
+
+<!-- Search Screen -->
+<div class="screen" id="search">
+<button class="back-btn" onclick="goBack()" style="float: right; background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin: 20px;">←</button>
+  <div class="home-screen">
+    <div class="header">
+      <h1>Search Events</h1>
+      <p>Find your favorite concerts or shows</p>
+    </div>
+    <div style="padding: 20px;">
+      <input type="text" placeholder="Search for events..." style="width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 12px; font-size: 16px;">
+      <p style="color: #666; margin-top: 20px;">Search results will appear here soon 🚧</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tickets Screen -->
+<div class="screen" id="tickets">
+<button class="back-btn" onclick="goBack()" style="float: right; background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin: 20px;">←</button>
+  <div class="home-screen">
+    <div class="header">
+      <h1>Your Tickets</h1>
+      <p>View all your booked events</p>
+    </div>
+    <div style="padding: 20px; text-align: center;">
+      <p style="color: #666;">You haven’t purchased any tickets yet. 🎫</p>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Screen -->
+<div class="screen" id="profile">
+<button class="back-btn" onclick="goBack()" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin: 20px;">←</button>
+  <div class="home-screen">
+    <div class="header">
+      <h1>Profile</h1>
+      <p>Manage your account details</p>
+    </div>
+    <div style="padding: 20px;">
+      <p style="margin-bottom: 8px;"><strong>Username:</strong> Guest</p>
+      <button class="auth-btn login-btn" onclick="showScreen('login')">Log Out</button>
+    </div>
+  </div>
+</div>
+
+        <!-- Event Detail Screen -->
+        <div class="screen" id="eventDetail">
+            <div class="event-detail-screen">
+                <div class="event-hero">
+                    <button class="back-btn" onclick="showScreen('home')">← Back</button>
+                    <span id="eventIcon">🎸</span>
+                </div>
+                <div class="event-details">
+                    <h2 id="eventTitle">Rock Festival</h2>
+                    <div class="detail-item">
+                        <span>Date</span>
+                        <span id="eventDate">Dec 25, 2024</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Time</span>
+                        <span>19:00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Venue</span>
+                        <span>Jakarta Arena</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Price</span>
+                        <span>$50 - $200</span>
+                    </div>
+                    <button class="buy-ticket-btn" onclick="showScreen('seatSelection')">Buy Ticket</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seat Selection Screen -->
+        <div class="screen" id="seatSelection">
+            <div class="seat-screen">
+                <button class="back-btn" onclick="showScreen('eventDetail')" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px;">← Back</button>
+                <h2 style="text-align: center; color: #333; margin-bottom: 20px;">Select Seats</h2>
+                
+                <div class="seat-map">
+                    <div class="stadium-view">Stadium View</div>
+                    <p style="color: #666; margin-bottom: 20px;">Interactive seat map coming soon</p>
+                </div>
+
+                <div class="ticket-info">
+                    <h3 style="color: #333; margin-bottom: 16px;">Ticket Information</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Section:</span>
+                        <span>VIP</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Row:</span>
+                        <span>A</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Seat:</span>
+                        <span>12-13</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Quantity:</span>
+                        <span>2</span>
+                    </div>
+                    <div class="price-total">
+                        <span>Total:</span>
+                        <span style="color: #ff4757;">$200.00</span>
+                    </div>
+                </div>
+
+                <button class="buy-ticket-btn" onclick="processPayment()">Proceed to Payment</button>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div class="screen" id="success">
+            <div class="success-screen">
+                <div class="success-icon">✓</div>
+                <h2 class="success-title">Transaction Successful</h2>
+                <p class="success-subtitle">Your tickets have been purchased successfully</p>
+                <button class="buy-ticket-btn" onclick="showScreen('qr')" style="width: auto; padding: 12px 24px;">View Tickets</button>
+                <button class="auth-btn register-btn" onclick="showScreen('home')" style="margin-top: 12px; width: auto; padding: 12px 24px;">Back to Home</button>
+            </div>
+        </div>
+
+        <!-- QR Code Screen -->
+        <div class="screen" id="qr">
+            <div class="qr-screen">
+                <button class="back-btn" onclick="showScreen('home')" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; position: absolute; top: 20px; left: 20px;">← Back</button>
+                <h2 style="color: #333; margin-bottom: 20px; margin-top: 40px;">Your Ticket</h2>
+                <div class="qr-code">
+                    <div class="qr-pattern"></div>
+                </div>
+                <p style="color: #666; margin-bottom: 20px;">Show this QR code at the venue entrance</p>
+                <div style="background: white; border-radius: 16px; padding: 20px; text-align: left;">
+                    <h3 style="color: #333; margin-bottom: 16px;">Event Details</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Event:</span>
+                        <span style="color: #333; font-weight: 600;">Rock Festival</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Date:</span>
+                        <span style="color: #333;">Dec 25, 2024</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Time:</span>
+                        <span style="color: #333;">19:00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #666;">Section:</span>
+                        <span style="color: #333;">VIP - Row A</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #666;">Seats:</span>
+                        <span style="color: #333;">12-13</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Login Screen -->
+        <div class="screen" id="adminLogin">
+            <div class="admin-screen">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h2 style="color: #333; margin-bottom: 40px;">Admin Login</h2>
+                    <div style="background: white; border-radius: 16px; padding: 30px;">
+                        <input type="text" placeholder="Username" style="width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 16px; font-size: 16px;">
+                        <input type="password" placeholder="Password" style="width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 24px; font-size: 16px;">
+                        <button class="buy-ticket-btn" onclick="showScreen('adminDashboard')">Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div class="screen" id="adminDashboard">
+            <div class="admin-screen">
+                <div class="admin-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="color: #333;">Dashboard</h2>
+                        <button onclick="showScreen('login')" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Logout</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">$8,200</div>
+                        <div class="stat-label">Today's Sales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">1,234</div>
+                        <div class="stat-label">Tickets Sold</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">56</div>
+                        <div class="stat-label">Active Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">89%</div>
+                        <div class="stat-label">Venue Capacity</div>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 16px;">Sales Chart</h3>
+                    <div class="chart-placeholder">Sales Analytics Chart</div>
+                </div>
+
+                <div class="orders-list">
+                    <h3 style="color: #333; margin-bottom: 16px;">Recent Orders</h3>
+                    <div class="order-item">
+                        <div>
+                            <div style="font-weight: 600; color: #333;">#0001</div>
+                            <div style="font-size: 14px; color: #666;">Rock Festival</div>
+                        </div>
+                        <div class="order-status status-completed">Completed</div>
+                    </div>
+                    <div class="order-item">
+                        <div>
+                            <div style="font-weight: 600; color: #333;">#0002</div>
+                            <div style="font-size: 14px; color: #666;">Jazz Night</div>
+                        </div>
+                        <div class="order-status status-completed">Completed</div>
+                    </div>
+                    <div class="order-item">
+                        <div>
+                            <div style="font-weight: 600; color: #333;">#0003</div>
+                            <div style="font-size: 14px; color: #666;">Pop Concert</div>
+                        </div>
+                        <div class="order-status status-completed">Completed</div>
+                    </div>
+                </div>
+
+                <button class="buy-ticket-btn" onclick="showScreen('scanCode')" style="margin-top: 20px;">Scan QR Code</button>
+            </div>
+        </div>
+
+        <!-- Scan Code Screen -->
+        <div class="screen" id="scanCode">
+<button class="back-btn" onclick="goBack()" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin: 20px;">←</button>
+            <div class="qr-screen">
+                <button class="back-btn" onclick="showScreen('adminDashboard')" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; position: absolute; top: 20px; left: 20px;">← Back</button>
+                <h2 style="color: #333; margin-bottom: 40px; margin-top: 40px;">Scan QR Code</h2>
+                <div style="width: 200px; height: 200px; border: 4px dashed #ddd; border-radius: 16px; margin: 40px auto; display: flex; align-items: center; justify-content: center; color: #666; font-size: 48px;">📷</div>
+                <p style="color: #666; margin-bottom: 40px;">Position QR code within the frame</p>
+                <button class="buy-ticket-btn" onclick="showScreen('invalidCode')" style="width: auto; padding: 12px 24px; background: #666;">Simulate Invalid Code</button>
+            </div>
+        </div>
+
+        <!-- Invalid Code Screen -->
+        <div class="screen" id="invalidCode">
+<button class="back-btn" onclick="goBack()" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin: 20px;">←</button>
+            <div class="error-screen">
+                <div class="error-icon">✕</div>
+                <h2 style="color: #333; margin-bottom: 10px;">Invalid Code</h2>
+                <p style="color: #666; margin-bottom: 40px;">This QR code is not valid or has already been used</p>
+                <button class="buy-ticket-btn" onclick="showScreen('scanCode')" style="width: auto; padding: 12px 24px;">Try Again</button>
+                <button class="auth-btn register-btn" onclick="showScreen('adminDashboard')" style="margin-top: 12px; width: auto; padding: 12px 24px;">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+let currentScreen = 'login';
+let screenHistory = [];
+        let currentEvent = 'Rock Festival';
+
+        function showScreen(screenId) {
+    // Sembunyikan semua layar
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+
+    // Simpan riwayat sebelum pindah layar
+    if (screenId !== currentScreen) {
+        screenHistory.push(currentScreen);
+    }
+
+    // Tampilkan layar yang diminta
+    document.getElementById(screenId).classList.add('active');
+    currentScreen = screenId;
+
+    // Update navigasi bawah
+    updateNavActiveState(screenId);
+        }
+
+        function showRegister() {
+    showScreen('register');
+}
+
+function goBack() {
+    if (screenHistory.length > 0) {
+        const previousScreen = screenHistory.pop();
+        showScreen(previousScreen);
+    } else {
+        showScreen('home'); // fallback kalau riwayat kosong
+    }
+}
+
+function registerUser() {
+    alert('Registration successful! Now login with your credentials.');
+    showScreen('login');
+        }
+
+        function showEventDetail(eventName) {
+            currentEvent = eventName;
+            const eventIcons = {
+                'Rock Festival': '🎸',
+                'Jazz Night': '🎺', 
+                'Pop Concert': '🎤',
+                'Classical Evening': '🎼'
+            };
+            
+            const eventDates = {
+                'Rock Festival': 'Dec 25, 2024',
+                'Jazz Night': 'Dec 28, 2024',
+                'Pop Concert': 'Jan 5, 2025',
+                'Classical Evening': 'Jan 10, 2025'
+            };
+            
+            document.getElementById('eventTitle').textContent = eventName;
+            document.getElementById('eventIcon').textContent = eventIcons[eventName];
+            document.getElementById('eventDate').textContent = eventDates[eventName];
+            showScreen('eventDetail');
+        }
+
+        function processPayment() {
+            // In a real app, this would process payment
+            // For demo, just show success screen
+            showScreen('success');
+        }
+
+        function updateNavActiveState(activeItem) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (activeItem) {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    if (item.querySelector('.nav-label').textContent.toLowerCase() === activeItem.toLowerCase()) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Initialize with login screen
+        showScreen('login');
+    </script>
+</body>
+</html>
